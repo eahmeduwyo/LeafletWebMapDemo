@@ -18,6 +18,7 @@ var radarDisplayOptions = {
   format: 'image/png',
   transparent: true
 };
+
 var radar = L.tileLayer.wms(radarUrl, radarDisplayOptions);
 radar.addTo(weatherLayer);
 

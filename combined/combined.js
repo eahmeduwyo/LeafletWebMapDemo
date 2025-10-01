@@ -8,10 +8,21 @@ var basemap =  L.tileLayer(basemapUrl, {
     maxZoom: 19
 }).addTo(map);
 
-// --- WEATHER ALERTS LAYER ---
+// ----------------- WEATHER LAYER -----------------
 var weatherLayer = L.layerGroup();
-var weatherAlertsUrl = 'https://api.weather.gov/alerts/active?region_type=land';
 
+// add radar into weather layer
+var radarUrl = 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
+var radarDisplayOptions = {
+  layers: 'nexrad-n0r-900913',
+  format: 'image/png',
+  transparent: true
+};
+var radar = L.tileLayer.wms(radarUrl, radarDisplayOptions);
+radar.addTo(weatherLayer);
+
+// add alerts into weather layer
+var weatherAlertsUrl = 'https://api.weather.gov/alerts/active?region_type=land';
 $.getJSON(weatherAlertsUrl, function(data) {
     L.geoJSON(data, {
         style: function(feature){
@@ -27,11 +38,11 @@ $.getJSON(weatherAlertsUrl, function(data) {
     }).addTo(weatherLayer);
 });
 
-// --- EARTHQUAKE LAYER ---
+// ----------------- EARTHQUAKE LAYER -----------------
 var earthquakeLayer = L.layerGroup();
 var earthquakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
-// color + size functions
+// color + size functions for earthquakes
 function getColor(mag) {
   return mag >= 5 ? '#d73027' :
          mag >= 4 ? '#fc8d59' :
@@ -67,12 +78,12 @@ $.getJSON(earthquakeUrl, function(data) {
   }).addTo(earthquakeLayer);
 });
 
-// --- LAYER CONTROL ---
+// ----------------- LAYER CONTROL -----------------
 var overlays = {
-    "Weather Alerts (NWS)": weatherLayer,
+    "Weather (Radar + Alerts)": weatherLayer,
     "Earthquakes (USGS)": earthquakeLayer
 };
 L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
-// default layer (Weather Alerts)
+// default layer = Weather
 weatherLayer.addTo(map);
